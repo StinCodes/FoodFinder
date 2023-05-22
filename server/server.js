@@ -2,18 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const db = require("./db");
 
 const port = process.env.PORT || 3006;
 
 app.use(express.json());
 
 //Get all restaurants event handler
-app.get("/api/v1/restaurants", (req, res) => {
-  console.log("route handler ran");
-  res.status(200).json({
-    status: "Success",
-    data: { restaurant: ["McDonalds", "Wendys"] },
-  });
+app.get("/api/v1/restaurants", async (req, res) => {
+  try {
+    const results = await db.query("SELECT * FROM restaurants");
+    console.log(results);
+    res.status(200).json({
+      status: "Success",
+      data: { restaurant: ["McDonalds", "Wendys"] },
+    });
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 //Get one restaurant
@@ -45,11 +51,11 @@ app.put("/api/v1/restaurants/:id", (req, res) => {
 });
 
 //Delete a restaurant
-app.delete("/api/v1/restaurants/:id",(req, res)=>{
+app.delete("/api/v1/restaurants/:id", (req, res) => {
   res.status(204).json({
-    status: "Success"
-  })
-})
+    status: "Success",
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
